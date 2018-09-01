@@ -120,5 +120,4 @@ class MainGame extends React.Component {
         );
     };
 }
-
 export default MainGame;
