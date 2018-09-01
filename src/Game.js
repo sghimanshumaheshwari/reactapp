@@ -8,7 +8,7 @@ import _ from 'lodash';
 
 
 const Star = (props) => {
-    const numberOfStars = 1 + Math.floor(Math.random() * 9);
+    //const numberOfStars = 1 + Math.floor(Math.random() * 9);
     //let stars = [];
     // for (let i = 0; i < numberOfStars; i++) {
     //     stars.push(<i key={i} className="fa fa-star" />);
@@ -18,7 +18,7 @@ const Star = (props) => {
 
         <div className="col-5">
             {/* {stars} */}
-            {_.range(numberOfStars).map((number, i) => { return (<i key={i} className="fa fa-star" />); })}
+            {_.range(props.numberOfStars).map((number, i) => { return (<i key={i} className="fa fa-star" />); })}
         </div>
 
     );
@@ -40,7 +40,7 @@ const Answer = (props) => {
         <div className="col-5">
             <div card text-center>
                 <div>
-                    {props.selectedNumbers.map((number, i) => { return (<span key={i}>{number}</span>) })}
+                    {props.selectedNumbers.map((number, i) => { return (<span onClick={()=>{props.unselectNumber(number)}} key={i}>{number}</span>) })}
                 </div>
             </div>
 
@@ -83,24 +83,32 @@ class Game extends React.Component {
         super(props);
         this.state = {
             selectedNumbers: [2, 4],
+            numberOfStars: 1 + Math.floor(Math.random() * 9),
         };
     };
     selectNumber = (selectedNumber) => {
         debugger;
-        this.setState((prevState) => {
-            return ({ selectedNumbers: prevState.selectedNumbers.concat(selectedNumber) });
-        });
+        if (this.state.selectedNumbers.indexOf(selectedNumber) < 0)
+            this.setState((prevState, props) => {
+                return ({ selectedNumbers: prevState.selectedNumbers.concat(selectedNumber) });
+            });
+    }
+    unselectNumber = (clickedNumber) => {
+        this.setState((prevState, props) => ({
+            selectedNumbers: prevState.selectedNumbers.filter((number) => number != clickedNumber)
+        }));
     }
     debugger;
     render() {
+        
         return (
             <div>
                 <h1>Play Nine</h1>
                 <hr />
                 <div className="row">
-                    <Star />
+                    <Star numberOfStars={this.state.numberOfStars} />
                     <Button />
-                    <Answer selectedNumbers={this.state.selectedNumbers} />
+                    <Answer unselectNumber={this.unselectNumber} selectedNumbers={this.state.selectedNumbers} />
 
                 </div>
                 <br />
