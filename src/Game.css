@@ -17,11 +17,11 @@
   .selected {
     background-color: #eee;
     color: #ddd;
-      cursor: not-allowed;  
+    cursor: not-allowed;  
   }
   
   .used {
     background-color: #aaddaa;
     color: #99bb99;
-      cursor: not-allowed;  
+    cursor: not-allowed;  
   }
