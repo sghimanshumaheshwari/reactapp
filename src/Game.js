@@ -6,6 +6,23 @@ import 'bootstrap/dist/css/bootstrap.css';
 //import 'bootstrap/dist/js/bootstrap';
 import _ from 'lodash';
 
+var possibleCombinationSum = function (arr, n) {
+    if (arr.indexOf(n) >= 0) { return true; }
+    if (arr[0] > n) { return false; }
+    if (arr[arr.length - 1] > n) {
+        arr.pop();
+        return possibleCombinationSum(arr, n);
+    }
+    var listSize = arr.length, combinationsCount = (1 << listSize)
+    for (var i = 1; i < combinationsCount; i++) {
+        var combinationSum = 0;
+        for (var j = 0; j < listSize; j++) {
+            if (i & (1 << j)) { combinationSum += arr[j]; }
+        }
+        if (n === combinationSum) { return true; }
+    }
+    return false;
+};
 
 const Star = (props) => {
     //const numberOfStars = 1 + Math.floor(Math.random() * 9);
@@ -108,19 +125,31 @@ const Number = (props) => {
 
 Number.List = _.range(1, 9);
 
+const DoneFrame = (props) => {
+    return (
+        <div className="text-center">
+            <h2>{props.doneStatus}</h2>
+        </div>
+    );
+}
+
 class Game extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             //selectedNumbers: [2, 4],
             selectedNumbers: [],
-            numberOfStars: 1 + Math.floor(Math.random() * 9),
+            numberOfStars: Game.randomNumber(), //1 + Math.floor(Math.random() * 9),
             //this state will store the flag that answer is correct or not.
             isCorrectAnswer: null,
             usedNumbers: [],
             redrawCount: 5,
+            doneStatus: null,
         };
     };
+    static randomNumber = () => {
+        return (1 + Math.floor(Math.random() * 9));
+    }
     selectNumber = (selectedNumber) => {
         debugger;
         if (this.state.selectedNumbers.indexOf(selectedNumber) < 0) {
@@ -151,9 +180,9 @@ class Game extends React.Component {
             usedNumbers: prevState.usedNumbers.concat(prevState.selectedNumbers),
             selectedNumbers: [],
             isCorrectAnswer: null,
-            numberOfStars: 1 + Math.floor(Math.random() * 9),
+            numberOfStars: Game.randomNumber(),//1 + Math.floor(Math.random() * 9),
 
-        }));
+        }), this.updateDoneStatus);
     }
 
     redraw = () => {
@@ -161,11 +190,34 @@ class Game extends React.Component {
         this.setState((prevState) => ({
             redrawCount: prevState.redrawCount - 1,
             selectedNumbers: [],
-            numberOfStars: 1 + Math.floor(Math.random() * 9),
+            numberOfStars: Game.randomNumber(), // 1 + Math.floor(Math.random() * 9),
             isCorrectAnswer: null,
             usedNumbers: [],
-        }));
+        }),this.updateDoneStatus);
     }
+
+    possibleSolution = ({ numberOfStars, usedNumbers }) => {
+        const possibleNumbers = _.range(1, 9).filter((num, indx) => {
+            return (usedNumbers.indexOf(num) === -1);
+        });
+        return (possibleCombinationSum(possibleNumbers, numberOfStars));
+    }
+
+    updateDoneStatus = () => {
+        this.setState((prevState) => {
+            if (this.state.usedNumbers.length === 9) {
+                return ({ doneStatus: 'Done Nice!!' });
+            }
+        if (prevState.redrawCount === 0 && !this.possibleSolution(prevState)) {
+                // if there is not redraws left and there is no possible solution.
+                return ({ doneStatus: 'Game Over!' });
+            }
+
+
+
+        });
+    }
+
     //debugger;
     render() {
         //const {selectedNumbers, numberOfStars}=this.state;
@@ -184,7 +236,11 @@ class Game extends React.Component {
 
                 </div>
                 <br />
-                <Number usedNumbers={this.state.usedNumbers} selectNumber={this.selectNumber} selectedNumbers={this.state.selectedNumbers} />
+                {
+                    (this.state.doneStatus) ? <DoneFrame doneStatus={this.state.doneStatus} /> :
+                        <Number usedNumbers={this.state.usedNumbers} selectNumber={this.selectNumber}
+                            selectedNumbers={this.state.selectedNumbers} />
+                }
             </div>
         );
     };
