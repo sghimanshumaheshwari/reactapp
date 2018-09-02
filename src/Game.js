@@ -25,10 +25,32 @@ const Star = (props) => {
 
 }
 
-const Button = () => {
+const Button = (props) => {
+    let button;
+    switch (props.isCorrectAnswer) {
+        case true:
+            button = <button className="btn btn-success">
+                <i className="fa fa-check" />
+            </button>;
+            break;
+        case false:
+            button = <button className="btn btn-danger">
+                <i className="fa fa-times" />
+            </button>;
+            break;
+        default:
+            button = <button onClick={() => { props.checkAnswer(); }}
+                className="btn"
+                disabled={props.selectedNumbers.length === 0} >
+                =
+            </button>;
+            break;
+    }
+
     return (
         <div className="col-2">
-            <button>=</button>
+            {/* <button className="btn" disabled={props.selectedNumbers.length === 0} >= </button> */}
+            {button}
         </div>
     );
 
@@ -40,7 +62,7 @@ const Answer = (props) => {
         <div className="col-5">
             <div card text-center>
                 <div>
-                    {props.selectedNumbers.map((number, i) => { return (<span onClick={()=>{props.unselectNumber(number)}} key={i}>{number}</span>) })}
+                    {props.selectedNumbers.map((number, i) => { return (<span onClick={() => { props.unselectNumber(number) }} key={i}>{number}</span>) })}
                 </div>
             </div>
 
@@ -82,8 +104,11 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            selectedNumbers: [2, 4],
+            //selectedNumbers: [2, 4],
+            selectedNumbers: [],
             numberOfStars: 1 + Math.floor(Math.random() * 9),
+            //this state will store the flag that answer is correct or not.
+            isCorrectAnswer: null,
         };
     };
     selectNumber = (selectedNumber) => {
@@ -98,16 +123,24 @@ class Game extends React.Component {
             selectedNumbers: prevState.selectedNumbers.filter((number) => number != clickedNumber)
         }));
     }
-    debugger;
+    checkAnswer = () => {
+        //To check answer, wheather answer is correct or not.
+        this.setState((prevState, props) => ({
+            isCorrectAnswer: prevState.numberOfStars == prevState.selectedNumbers.reduce((total, num) => { total + num, 0 })
+        }));
+    }
+
+    //debugger;
     render() {
-        
+        //const {selectedNumbers, numberOfStars}=this.state;
         return (
             <div>
                 <h1>Play Nine</h1>
                 <hr />
                 <div className="row">
                     <Star numberOfStars={this.state.numberOfStars} />
-                    <Button />
+                    <Button checkAnswer={this.checkAnswer} isCorrectAnswer={this.state.isCorrectAnswer}
+                        selectedNumbers={this.state.selectedNumbers} />
                     <Answer unselectNumber={this.unselectNumber} selectedNumbers={this.state.selectedNumbers} />
 
                 </div>
