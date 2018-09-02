@@ -55,7 +55,7 @@ const Button = (props) => {
             <br />
             <button className="btn btn-warning btn-sm"
                 onClick={() => { props.redraw(); }}
-                disabled={props.redrawCount == 0} >
+                disabled={props.redrawCount === 0} >
                 <i className="fa fa-refresh" />&nbsp; {props.redrawCount}
             </button>
         </div>
